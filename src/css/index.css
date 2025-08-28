@@ -1,0 +1,125 @@
+:root {
+    --panel: rgb(30, 33, 45);
+    --background: rgb(50, 55, 75);
+    --highlight: rgb(70, 77, 105);
+    --dark: rgb(20, 22, 30);
+    --light: rgb(190, 200, 220);
+    --shadow: rgba(20, 22, 30, 0.5);
+}
+
+body {
+    position: relative;
+    width: 900px;
+    background-color: var(--background);
+    margin: auto;
+}
+
+.equation-container {
+    position: relative;
+    float: left;
+    background-color: var(--panel);
+    color: var(--light);
+    box-sizing: border-box;
+    width: 300px;
+    margin: 0;
+    height: 100px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border-style: solid;
+    border-color: var(--light);
+    border-width: 0px;
+}
+
+.color-container {
+    position: relative;
+    float: left;
+    background-color: var(--panel);
+    color: var(--light);
+    box-sizing: border-box;
+    width: 200px;
+    height: 100px;
+    margin: 0;
+    margin-top: 10px; margin-left: 10px;
+    border-radius: 10px;
+    border-style: solid;
+    border-color: var(--light);
+    border-width: 0px;
+}
+
+.input-container {
+    position: relative;
+    float: left;
+    background-color: var(--panel);
+    color: var(--light);
+    box-sizing: border-box;
+    width: 380px;
+    height: 100px;
+    margin: 0;
+    margin-top: 10px; margin-left: 10px;
+    border-radius: 10px;
+    border-style: solid;
+    border-color: var(--light);
+    border-width: 0px;
+    display: dark;
+    overflow: hidden;
+}
+
+.scroll {
+    position: absolute;
+    top: 0;
+    height: 100px;
+}
+
+.scroll-bar {
+    position: absolute;
+    top: 0; right: 0;
+    width: 10px;
+    height: 50px;
+    background-color: var(--light);
+    /* border-radius: 5px; */
+}
+
+.scroll-bar-track {
+    position: absolute;
+    top: 0; right: 0;
+    width: 10px;
+    height: 100px;
+    background-color: var(--background);
+    /* border-radius: 5px; */
+}
+
+.container-row {
+    margin: 10px;
+    height: 35px;
+    display: flex;
+    align-content: center;
+    vertical-align: center;
+    justify-content: space-between;
+}
+
+.container-row>h3 {
+    margin: 10px;
+}
+
+.container-row>input {
+    color-scheme: dark ;
+    color: var(--light);
+    background-color: var(--background);
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 10px;
+    border-color: var(--light);
+}
+
+.canvas {
+    position: relative;
+    box-sizing: border-box;
+    border-radius: 10px;
+    background-color: var(--panel);
+    border-style: solid;
+    border-color: var(--light);
+    border-width: 1px;
+    width: 900px;
+    height: 500px;
+}

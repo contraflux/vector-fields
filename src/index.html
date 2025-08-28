@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Vector Fields</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/index.js" defer></script>
+    <script type="module" src="js/core/app.js" defer></script>
+</head>
+
+<body>
+    <div class="equation-container">
+        <div class="container-row">
+            <h3>dx/dt</h3>
+            <input type="text" id="x-dot" value="y">
+        </div>
+        <div class="container-row">
+            <h3>dy/dt</h3>
+            <input type="text" id="y-dot" value="-x">
+        </div>
+    </div>
+
+    <div class="color-container">
+        <div class="container-row">
+            <h3>Start Color</h3>
+            <input type="color" id="start-color" value="#ff2a22">
+        </div>
+        <div class="container-row">
+            <h3>End Color</h3>
+            <input type="color" id="end-color" value="#219ebc">
+        </div>
+    </div>
+
+    <div class="input-container">
+        <div class="scroll-bar-track"></div>
+        <div class="scroll-bar" id="scroll-bar"></div>
+        <div class="scroll" id="scroll">
+            <div class="container-row">
+                <h3>Normalize</h3>
+                <input type="checkbox" id="normalize-tick" value="True">
+            </div>
+            <div class="container-row">
+                <h3>Arrow Scale</h3>
+                <input type="range" id="arrow-scale" min="1" max="1000" value="50">
+            </div>
+            <div class="container-row">
+                <h3>Arrow Density</h3>
+                <input type="range" id="arrow-density" min="1" max="5" value="2">
+            </div>
+        </div>
+    </div>
+    
+    <canvas class="canvas" id="canvas" width="900" height="500"></canvas>
+</body>
+
+</html>
