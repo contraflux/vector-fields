@@ -1,2 +1,2 @@
-# circuits
-Electron app to simulate simple circuits with batteries, resistors, capacitors, and inductors.
+# vector fields
+Electron app to display 2D vector fields.
