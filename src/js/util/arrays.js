@@ -1,3 +1,4 @@
+// Create an array of evenly spaced values between start and end
 function linRange(start, end, count) {
     const spacing = (end - start) / (count - 1);
     let arr = [];
@@ -9,6 +10,7 @@ function linRange(start, end, count) {
     return arr;
 }
 
+// Create an array of values with difference step between start and end
 function range(start, end, step) {
     let arr = [];
 

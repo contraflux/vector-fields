@@ -1,23 +1,22 @@
-import { canvas, coordScale, offsetX, offsetY } from '../core/app.js';
+import { fieldContainer } from '../core/app.js';
 
+// Convert a pixel position to coordinates
 function pixelsToCoords(w, h) {
-    const x_0 = (w - canvas.width/2) / coordScale;
-    const y_0 = -(h - canvas.height/2) / coordScale;
+    const x_0 = (w - fieldContainer.canvas.width/2) / fieldContainer.coordScale;
+    const y_0 = -(h - fieldContainer.canvas.height/2) / fieldContainer.coordScale;
 
-    return [x_0 - offsetX, y_0 - offsetY];
+    return [x_0 - fieldContainer.offsetX, y_0 - fieldContainer.offsetY];
 }
 
+// Convert coordinates to a pixel position
 function coordsToPixels(x, y) {
-    const w_0 = (x + offsetX) * coordScale;
-    const h_0 = -(y + offsetY) * coordScale
+    const w_0 = (x + fieldContainer.offsetX) * fieldContainer.coordScale;
+    const h_0 = -(y + fieldContainer.offsetY) * fieldContainer.coordScale
 
-    return [w_0 + canvas.width/2, h_0 + canvas.height/2];
+    return [w_0 + fieldContainer.canvas.width/2, h_0 + fieldContainer.canvas.height/2];
 }
 
-function log(a, b) {
-    return Math.log(a) / Math.log(b);
-}
-
+// Convert hex color codes to RGB
 function hexToRGB(hex) {
     const chars = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
 
@@ -28,20 +27,4 @@ function hexToRGB(hex) {
     return [red, green, blue];
 }
 
-function colorLerp(start_color, end_color, s) {
-    const start_color_rgb = hexToRGB(start_color);
-    const end_color_rgb = hexToRGB(end_color);
-
-    const delta_red = end_color_rgb[0] - start_color_rgb[0];
-    const red = (delta_red * s) + start_color_rgb[0];
-
-    const delta_green = end_color_rgb[1] - start_color_rgb[1];
-    const green = (delta_green * s) + start_color_rgb[1];
-
-    const delta_blue = end_color_rgb[2] - start_color_rgb[2];
-    const blue = (delta_blue * s) + start_color_rgb[2];
-
-    return [red, green, blue];
-}
-
-export { pixelsToCoords, coordsToPixels, log, colorLerp };
+export { pixelsToCoords, coordsToPixels, hexToRGB };

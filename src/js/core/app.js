@@ -1,19 +1,15 @@
-import { pixelsToCoords, coordsToPixels, log, colorLerp } from "../util/conversions.js";
-import { linRange, range } from "../util/arrays.js"
-import { light } from "../util/colors.js"
+import { FieldContainer} from "../components/Container.js"
 
-export const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+import { pixelsToCoords, coordsToPixels, hexToRGB } from "../util/conversions.js";
+import { log, colorLerp } from "../util/utilities.js";
+import { linRange, range } from "../util/arrays.js";
+import { rainbow, highlight, light, dark } from "../util/colors.js";
 
+export const fieldContainer = new FieldContainer('canvas');
+export const dt = 1e-2;
 
-let isDragging = false;
-
-let mouseOffsetX = 0;
-let mouseOffsetY = 0;
-
-export let coordScale = 25;
-export let offsetX = 0;
-export let offsetY = 0;
+const canvas = fieldContainer.canvas;
+const ctx = fieldContainer.ctx;
 
 const xdot_input = document.getElementById('x-dot');
 const ydot_input = document.getElementById('y-dot');
@@ -23,13 +19,11 @@ const normalized_input = document.getElementById('normalize-tick');
 const arrow_scale_input = document.getElementById('arrow-scale');
 const arrow_density_input = document.getElementById('arrow-density');
 
-let initial_locations = [];
-
 function drawGrid() {
     const upperLeftBound = pixelsToCoords(0, 0);
     const lowerRightBound = pixelsToCoords(canvas.width, canvas.height);
 
-    const gridSpacing = Math.pow(5, Math.ceil(log(50 / coordScale, 5)));
+    const gridSpacing = Math.pow(5, Math.ceil(log(50 / fieldContainer.coordScale, 5)));
 
     const min_x = Math.floor(upperLeftBound[0] / gridSpacing) * gridSpacing;
     const max_x = lowerRightBound[0];
@@ -72,27 +66,25 @@ function drawGrid() {
 }
 
 function dragGrid(e) {
-    if (!isDragging) return null;
+    if (!fieldContainer.isDragging) return null;
 
-    offsetX += e.movementX / coordScale;
-    offsetY -= e.movementY / coordScale;
+    fieldContainer.offsetX += e.movementX / fieldContainer.coordScale;
+    fieldContainer.offsetY -= e.movementY / fieldContainer.coordScale;
 }
 
 function zoomGrid(e) {
     const zoomSpeed = 2e-3;
 
-    coordScale += e.deltaY * coordScale * zoomSpeed;
+    fieldContainer.coordScale += e.deltaY * fieldContainer.coordScale * zoomSpeed;
 
-    if (coordScale < 1e-5) {
-        coordScale = 1e-5;
+    if (fieldContainer.coordScale < 1e-5) {
+        fieldContainer.coordScale = 1e-5;
     }
 }
 
 function resetGrid(e) {
     if (e.key == 'r') {
-        coordScale = 25;
-        offsetX = 0;
-        offsetY = 0;
+        fieldContainer.resetFields();
     }
 }
 
@@ -111,8 +103,8 @@ function drawVectorField(xs, ys, vecs, colors, vectorScale, arrowScale, isNormal
                 y_dot /= magnitude;
             }
 
-            const x_pixel = x_dot * coordScale * vectorScale;
-            const y_pixel = -y_dot * coordScale * vectorScale;
+            const x_pixel = x_dot * fieldContainer.coordScale * vectorScale;
+            const y_pixel = -y_dot * fieldContainer.coordScale * vectorScale;
 
             ctx.strokeStyle = colors[index];
             ctx.fillStyle = colors[index];
@@ -131,9 +123,9 @@ function drawVectorField(xs, ys, vecs, colors, vectorScale, arrowScale, isNormal
                 ctx.translate(x_pixel, y_pixel);
                 ctx.rotate(Math.atan2(x_dot, y_dot));
                 ctx.beginPath();
-                ctx.moveTo(arrowScale * coordScale / 2, arrowScale * coordScale / 2);
+                ctx.moveTo(arrowScale * fieldContainer.coordScale / 2, arrowScale * fieldContainer.coordScale / 2);
                 ctx.lineTo(0, 0)
-                ctx.lineTo(-arrowScale * coordScale / 2, arrowScale * coordScale / 2);
+                ctx.lineTo(-arrowScale * fieldContainer.coordScale / 2, arrowScale * fieldContainer.coordScale / 2);
                 ctx.fill();
                 ctx.restore();
             }
@@ -145,7 +137,7 @@ function appPeriodic() {
     const upperLeftBound = pixelsToCoords(0, 0);
     const lowerRightBound = pixelsToCoords(canvas.width, canvas.height);
 
-    const gridSpacing = Math.pow(5, Math.ceil(log(50 / coordScale, 5)));
+    const gridSpacing = Math.pow(5, Math.ceil(log(50 / fieldContainer.coordScale, 5)));
 
     const min_x = Math.floor(upperLeftBound[0] / gridSpacing) * gridSpacing;
     const max_x = lowerRightBound[0];
@@ -199,14 +191,11 @@ function addPath(e) {
     const rect = canvas.getBoundingClientRect();
     const coords = pixelsToCoords(e.clientX - rect.left, e.clientY - rect.top);
 
-    initial_locations.push(coords);
+    fieldContainer.initialLocations.push(coords);
 }
 
 function drawPaths(F, iters) {
-    const dt = 1e-2;
-    
-
-    for (const initial of initial_locations) {
+    for (const initial of fieldContainer.initialLocations) {
         let x = initial[0];
         let y = initial[1];
 
@@ -231,13 +220,15 @@ function drawPaths(F, iters) {
     }
 }
 
-canvas.addEventListener('mousedown', (e) => { isDragging = true; });
+canvas.addEventListener('mousedown', (e) => { fieldContainer.isDragging = true; });
 canvas.addEventListener('mousemove', (e) => dragGrid(e));
-canvas.addEventListener('mouseup', () => { isDragging = false; })
+canvas.addEventListener('mouseup', () => { fieldContainer.isDragging = false; })
 canvas.addEventListener('wheel', (e) => zoomGrid(e));
 
 canvas.addEventListener('dblclick', (e) => addPath(e));
 
-document.addEventListener('keypress', (e) => resetGrid(e));
+document.addEventListener('keypress', (e) => {
+    if (e.key == 'r') fieldContainer.resetFields();
+});
 
 setInterval(appPeriodic, 10);
