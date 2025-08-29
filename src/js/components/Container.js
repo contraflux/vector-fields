@@ -15,6 +15,7 @@ class FieldContainer extends Container {
         this.mouseOffsetX = 0;
         this.mouseOffsetY = 0;
         this.initialLocations = [];
+        this.zoomSpeed = 2e-3;
     }
 
     resetFields() {
@@ -25,6 +26,21 @@ class FieldContainer extends Container {
         this.mouseOffsetX = 0;
         this.mouseOffsetY = 0;
         this.initialLocations = [];
+    }
+
+    dragGrid(e) {
+        if (!this.isDragging) return null;
+
+        this.offsetX += e.movementX / this.coordScale;
+        this.offsetY -= e.movementY / this.coordScale;
+    }
+
+    zoomGrid(e) {
+        this.coordScale += e.deltaY * this.coordScale * this.zoomSpeed;
+
+        if (this.coordScale < 1e-5) {
+            this.coordScale = 1e-5;
+        }
     }
 }
 

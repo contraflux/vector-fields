@@ -65,29 +65,6 @@ function drawGrid() {
     }
 }
 
-function dragGrid(e) {
-    if (!fieldContainer.isDragging) return null;
-
-    fieldContainer.offsetX += e.movementX / fieldContainer.coordScale;
-    fieldContainer.offsetY -= e.movementY / fieldContainer.coordScale;
-}
-
-function zoomGrid(e) {
-    const zoomSpeed = 2e-3;
-
-    fieldContainer.coordScale += e.deltaY * fieldContainer.coordScale * zoomSpeed;
-
-    if (fieldContainer.coordScale < 1e-5) {
-        fieldContainer.coordScale = 1e-5;
-    }
-}
-
-function resetGrid(e) {
-    if (e.key == 'r') {
-        fieldContainer.resetFields();
-    }
-}
-
 function drawVectorField(xs, ys, vecs, colors, vectorScale, arrowScale, isNormalized, drawArrows) {
     xs.forEach((x, x_index) => {
         ys.forEach((y, y_index) => {
@@ -156,7 +133,18 @@ function appPeriodic() {
     const isNormalized = normalized_input.checked;
     const arrowScale = arrow_scale_input.value / 1000;
     
-    const F = new Function('x', 'y', "return [" + xdot + "," + ydot + "];");
+
+    function F(x, y) {
+        // Simplifying syntax
+        function sin(x) { return Math.sin(x); }
+        function cos(x) { return Math.cos(x); }
+        function tan(x) { return Math.tan(x); }
+        function pow(x, y) { return Math.pow(x, y); }
+        function sqrt(x) { return Math.sqrt(x); }
+        function log(x) { return Math.log(x); }
+
+        return [eval(xdot), eval(ydot)];
+    }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = light;
@@ -221,10 +209,9 @@ function drawPaths(F, iters) {
 }
 
 canvas.addEventListener('mousedown', (e) => { fieldContainer.isDragging = true; });
-canvas.addEventListener('mousemove', (e) => dragGrid(e));
+canvas.addEventListener('mousemove', (e) => fieldContainer.dragGrid(e));
 canvas.addEventListener('mouseup', () => { fieldContainer.isDragging = false; })
-canvas.addEventListener('wheel', (e) => zoomGrid(e));
-
+canvas.addEventListener('wheel', (e) => fieldContainer.zoomGrid(e));
 canvas.addEventListener('dblclick', (e) => addPath(e));
 
 document.addEventListener('keypress', (e) => {
