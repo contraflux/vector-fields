@@ -8,8 +8,8 @@ scroll_menu.addEventListener('wheel', (e) => {
 
     console.log(offset);
 
-    offset = offset < 0 ? 0 : offset > 50 ? 50 : offset;
+    offset = offset < 0 ? 0 : offset > 100 ? 100 : offset;
 
     scroll_menu.style.top = -offset + "px";
-    scroll_bar.style.top = offset + "px";
+    scroll_bar.style.top = offset/2 + "px";
 });

@@ -16,6 +16,7 @@ class FieldContainer extends Container {
         this.mouseOffsetY = 0;
         this.initialLocations = [];
         this.zoomSpeed = 2e-3;
+        this.overlay = "none";
     }
 
     resetFields() {
@@ -26,6 +27,7 @@ class FieldContainer extends Container {
         this.mouseOffsetX = 0;
         this.mouseOffsetY = 0;
         this.initialLocations = [];
+        this.overlay = "none";
     }
 
     dragGrid(e) {

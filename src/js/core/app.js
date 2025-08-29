@@ -4,6 +4,7 @@ import { pixelsToCoords, coordsToPixels, hexToRGB } from "../util/conversions.js
 import { log, colorLerp } from "../util/utilities.js";
 import { linRange, range } from "../util/arrays.js";
 import { rainbow, highlight, light, dark } from "../util/colors.js";
+import { divergence, curl } from "../util/vector_calc.js"
 
 export const fieldContainer = new FieldContainer('canvas');
 export const dt = 1e-2;
@@ -18,6 +19,7 @@ const end_color_input = document.getElementById('end-color');
 const normalized_input = document.getElementById('normalize-tick');
 const arrow_scale_input = document.getElementById('arrow-scale');
 const arrow_density_input = document.getElementById('arrow-density');
+const overlay_input = document.getElementById('overlay');
 
 function drawGrid() {
     const upperLeftBound = pixelsToCoords(0, 0);
@@ -63,6 +65,43 @@ function drawGrid() {
         ctx.fillText(y.toFixed(1), canvas.width - 30, 0);
         ctx.restore();
     }
+}
+
+function drawScalarField(xs, ys, func, operator, start_color, end_color) {
+    let div_list = [];
+
+    xs.forEach((x1, x_index) => {
+        ys.forEach((y1, y_index) => {
+            const x2 = x1 + (xs[1] - xs[0]);
+            const y2 = y1 + (ys[1] - ys[0]);
+
+            div_list.push(operator(func, (x1 + x2) / 2, (y1 + y2) / 2));
+        });
+    });
+
+    const max_div = Math.max(...div_list);
+    const colors = div_list.map((div) => `rgba(${colorLerp(start_color, end_color, div/max_div)[0]}, ${colorLerp(start_color, end_color, div/max_div)[1]}, ${colorLerp(start_color, end_color, div/max_div)[2]}, 1)`);
+
+    xs.forEach((x1, x_index) => {
+        ys.forEach((y1, y_index) => {
+            const index = (x_index * ys.length) + y_index;
+
+            const x2 = x1 + (xs[1] - xs[0]);
+            const y2 = y1 + (ys[1] - ys[0]);
+            const [w1, h1] = coordsToPixels(x1, y1);
+            const [w2, h2] = coordsToPixels(x2, y2);
+
+            ctx.strokeStyle = colors[index];
+            ctx.fillStyle = colors[index];
+            ctx.lineWidth = 1;
+            ctx.save();
+            ctx.translate(w1, h1);
+            ctx.beginPath();
+            ctx.rect(0, 0, (w2 - w1), (h2 - h1));
+            ctx.fill();
+            ctx.restore();
+        });
+    });
 }
 
 function drawVectorField(xs, ys, vecs, colors, vectorScale, arrowScale, isNormalized, drawArrows) {
@@ -126,14 +165,17 @@ function appPeriodic() {
     const step = gridSpacing / arrowDensity;
     const xs = range(min_x - step, max_x + step, step);
     const ys = range(min_y - step, max_y + step, step);
+    const scalar_xs = range(min_x - step, max_x + step, step/2);
+    const scalar_ys = range(min_y - step, max_y + step, step/2);
 
     const xdot = xdot_input.value;
     const ydot = ydot_input.value;
 
     const isNormalized = normalized_input.checked;
     const arrowScale = arrow_scale_input.value / 1000;
-    
 
+    fieldContainer.overlay = overlay_input.value;
+    
     function F(x, y) {
         // Simplifying syntax
         function sin(x) { return Math.sin(x); }
@@ -171,6 +213,11 @@ function appPeriodic() {
     const colors = lengths.map((l) => `rgba(${colorLerp(start_color, end_color, l/max_length)[0]}, ${colorLerp(start_color, end_color, l/max_length)[1]}, ${colorLerp(start_color, end_color, l/max_length)[2]}, 1)`);
 
     drawGrid();
+    if (fieldContainer.overlay == "div") {
+        drawScalarField(scalar_xs, scalar_ys, F, divergence, "#000000", "#ffffff");
+    } else if (fieldContainer.overlay == "curl") {
+        drawScalarField(scalar_xs, scalar_ys, F, curl, "#000000", "#ffffff");
+    }
     drawVectorField(xs, ys, vecs, colors, arrowScale * step, step * 0.15, isNormalized, true);
     drawPaths(F, 1e3);
 }
