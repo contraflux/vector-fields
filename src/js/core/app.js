@@ -68,19 +68,24 @@ function drawGrid() {
 }
 
 function drawScalarField(xs, ys, func, operator, start_color, end_color) {
-    let div_list = [];
+    let value_list = [];
 
     xs.forEach((x1, x_index) => {
         ys.forEach((y1, y_index) => {
             const x2 = x1 + (xs[1] - xs[0]);
             const y2 = y1 + (ys[1] - ys[0]);
 
-            div_list.push(operator(func, (x1 + x2) / 2, (y1 + y2) / 2));
+            value_list.push(operator(func, (x1 + x2) / 2, (y1 + y2) / 2));
         });
     });
 
-    const max_div = Math.max(...div_list);
-    const colors = div_list.map((div) => `rgba(${colorLerp(start_color, end_color, div/max_div)[0]}, ${colorLerp(start_color, end_color, div/max_div)[1]}, ${colorLerp(start_color, end_color, div/max_div)[2]}, 1)`);
+    const max = Math.max(...value_list);
+    const min = Math.min(...value_list);
+    // Maps a value from a range to [0, 1]
+    function map(min, max, value) {
+        return (value - min) / (max - min);
+    }
+    const colors = value_list.map((val) => `rgba(${colorLerp(start_color, end_color, map(min, max, val))[0]}, ${colorLerp(start_color, end_color, map(min, max, val))[1]}, ${colorLerp(start_color, end_color, map(min, max, val))[2]}, 1)`);
 
     xs.forEach((x1, x_index) => {
         ys.forEach((y1, y_index) => {
@@ -93,11 +98,11 @@ function drawScalarField(xs, ys, func, operator, start_color, end_color) {
 
             ctx.strokeStyle = colors[index];
             ctx.fillStyle = colors[index];
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 0;
             ctx.save();
             ctx.translate(w1, h1);
             ctx.beginPath();
-            ctx.rect(0, 0, (w2 - w1), (h2 - h1));
+            ctx.rect(0, 0, (w2 - w1), (h2 - h1))
             ctx.fill();
             ctx.restore();
         });
