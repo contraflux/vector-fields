@@ -81,9 +81,14 @@ function drawScalarField(xs, ys, func, operator, start_color, end_color) {
 
     const max = Math.max(...value_list);
     const min = Math.min(...value_list);
-    // Maps a value from a range to [0, 1]
+    // Maps a value from a range to [0, 1] with 0 mapping to 0.5
     function map(min, max, value) {
-        return (value - min) / (max - min);
+        const max_abs = Math.abs(max);
+        const min_abs = Math.abs(min);
+
+        const furthest = max_abs > min_abs ? max_abs : min_abs;
+
+        return ( (value / furthest) / 2 ) + 0.5;
     }
     const colors = value_list.map((val) => `rgba(${colorLerp(start_color, end_color, map(min, max, val))[0]}, ${colorLerp(start_color, end_color, map(min, max, val))[1]}, ${colorLerp(start_color, end_color, map(min, max, val))[2]}, 1)`);
 
