@@ -1,20 +1,20 @@
 :root {
-    --panel: rgb(30, 33, 45);
-    --background: rgb(50, 55, 75);
-    --highlight: rgb(70, 77, 105);
-    --dark: rgb(20, 22, 30);
-    --light: rgb(190, 200, 220);
-    --shadow: rgba(20, 22, 30, 0.5);
+  --highlight: rgb(26, 27, 36);
+  --shadow: rgb(22, 22, 28);
+  --panel: rgb(31, 33, 40);
+  --light: rgb(190, 200, 220);
 }
 
 body {
     position: relative;
     width: 900px;
-    background-color: var(--background);
+    background-color: var(--highlight);
+    font-family: Arial, Helvetica, sans-serif;
     margin: auto;
 }
 
 .equation-container {
+    z-index: 100;
     position: relative;
     float: left;
     background-color: var(--panel);
@@ -25,13 +25,12 @@ body {
     height: 100px;
     margin-bottom: 10px;
     margin-top: 10px;
-    border-radius: 10px;
-    border-style: solid;
-    border-color: var(--light);
-    border-width: 0px;
+    border-radius: 25px;
+    box-shadow: 0 0 5px 5px var(--shadow);
 }
 
 .color-container {
+    z-index: 100;
     position: relative;
     float: left;
     background-color: var(--panel);
@@ -41,13 +40,12 @@ body {
     height: 100px;
     margin: 0;
     margin-top: 10px; margin-left: 10px;
-    border-radius: 10px;
-    border-style: solid;
-    border-color: var(--light);
-    border-width: 0px;
+    border-radius: 25px;
+    box-shadow: 0 0 5px 5px var(--shadow);
 }
 
 .input-container {
+    z-index: 100;
     position: relative;
     float: left;
     background-color: var(--panel);
@@ -57,19 +55,18 @@ body {
     height: 100px;
     margin: 0;
     margin-top: 10px; margin-left: 10px;
-    border-radius: 10px;
-    border-style: solid;
-    border-color: var(--light);
-    border-width: 0px;
+    border-radius: 25px;
     display: dark;
     overflow: hidden;
+    box-shadow: 0 0 5px 5px var(--shadow);
 }
 
 .scroll {
     position: absolute;
     top: 0;
-    height: 150px;
-    width: 350px;
+    height: 100px;
+    width: 370px;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 10%, rgba(0,0,0,1) 90%, rgba(0,0,0,0) 100%);
 }
 
 .scroll-bar {
@@ -85,13 +82,12 @@ body {
     top: 0; right: 0;
     width: 10px;
     height: 100px;
-    background-color: var(--background);
-    /* border-radius: 5px; */
 }
 
 .container-row {
-    margin: 10px;
-    height: 35px;
+    position: relative;
+    margin-left: 15px; margin-right: 15px;
+    height: 50px;
     display: flex;
     align-content: center;
     vertical-align: center;
@@ -99,23 +95,31 @@ body {
 }
 
 .container-row>h3 {
-    margin: 10px;
+    margin: 0;
+    font-size: 18px;
+    height: 50px;
+    display: flex;
+    align-items: center;
 }
 
 .container-row>input {
+    position: relative;
+    margin-top: 10px; margin-bottom: 10px;
+    height: 30px;
     color-scheme: dark ;
     color: var(--light);
-    background-color: var(--background);
+    background-color: var(--shadow);
     border-width: 1px;
     border-style: solid;
     border-radius: 10px;
+    box-sizing: border-box;
     border-color: var(--light);
 }
 
 .container-row>select {
     color-scheme: dark ;
     color: var(--light);
-    background-color: var(--background);
+    background-color: var(--shadow);
     border-width: 1px;
     border-style: solid;
     border-radius: 10px;
@@ -127,11 +131,9 @@ body {
 .canvas {
     position: relative;
     box-sizing: border-box;
-    border-radius: 10px;
+    border-radius: 25px;
     background-color: var(--panel);
-    border-style: solid;
-    border-color: var(--light);
-    border-width: 1px;
     width: 900px;
     height: 500px;
+    box-shadow: 0 0 10px 10px var(--shadow);
 }
