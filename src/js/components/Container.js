@@ -1,3 +1,12 @@
+/**
+ * Container
+ * 
+ * Classes for organizing content needed across scripts
+ * 
+ * @author contraflux
+ * @date 10/2/2025
+ */
+
 class Container {
     constructor(id) {
         this.canvas = document.getElementById(id);

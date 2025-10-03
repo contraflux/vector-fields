@@ -7,8 +7,6 @@ let offset = 0;
 scroll_menu.addEventListener('wheel', (e) => {
     offset += e.deltaY / 2;
 
-    console.log(offset);
-
     offset = offset < 0 ? 0 : offset > 100 ? 100 : offset;
 
     top_container.style.marginTop = -offset + "px";
