@@ -20,27 +20,6 @@ const canvas = fieldContainer.canvas;
 const ctx = fieldContainer.ctx;
 
 /**
- * Determine the grid coordinates for vector and scalar fields
- *
- * @returns {array} Grid information including step size, the grid for vector
- *                  fields, and the grid for scalar fields
- */
-function getInputs() {
-    const xDot = document.getElementById('x-dot').value;
-    const yDot = document.getElementById('y-dot').value;
-    const isNormalized = document.getElementById('normalize-tick').checked;
-    const arrowScale = document.getElementById('arrow-scale').value;
-    const startColor = document.getElementById('start-color').value;
-    const endColor = document.getElementById('end-color').value;
-    const arrowDensity = document.getElementById('arrow-density').value;
-    const overlay = document.getElementById('overlay').value;
-
-    fieldContainer.overlay = overlay;
-
-    return [xDot, yDot, isNormalized, arrowScale, startColor, endColor, arrowDensity];
-}
-
-/**
  * Periodic function that runs every tick and contains most drawing and calculation
  */
 function appPeriodic() {
@@ -80,6 +59,27 @@ function appPeriodic() {
                     endColor, arrowScale * step,
                     0.15 * step, isNormalized, true); // Draw the vector field
     drawPaths(fieldContainer, F, 1e3, 1e-2); // Draw the paths
+}
+
+/**
+ * Determine the grid coordinates for vector and scalar fields
+ *
+ * @returns {array} Grid information including step size, the grid for vector
+ *                  fields, and the grid for scalar fields
+ */
+function getInputs() {
+    const xDot = document.getElementById('x-dot').value;
+    const yDot = document.getElementById('y-dot').value;
+    const isNormalized = document.getElementById('normalize-tick').checked;
+    const arrowScale = document.getElementById('arrow-scale').value;
+    const startColor = document.getElementById('start-color').value;
+    const endColor = document.getElementById('end-color').value;
+    const arrowDensity = document.getElementById('arrow-density').value;
+    const overlay = document.getElementById('overlay').value;
+
+    fieldContainer.overlay = overlay;
+
+    return [xDot, yDot, isNormalized, arrowScale, startColor, endColor, arrowDensity];
 }
 
 /**

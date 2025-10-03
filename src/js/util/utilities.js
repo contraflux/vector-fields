@@ -64,7 +64,6 @@ export function pixelsToCoords(width, height) {
     return [x - fieldContainer.offsetX, y - fieldContainer.offsetY];
 }
 
-
 /**
  * Convert coordiantes to a pixel position
  *
