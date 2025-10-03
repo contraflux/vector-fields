@@ -45,6 +45,7 @@ export function drawGrid(fieldContainer) {
             const h = coordsToPixels(0, n)[1]; // Height position on canvas
 
             ctx.strokeStyle = light; // Stroke color
+            ctx.fillStyle = light; // Fill color
             ctx.lineWidth = n == 0 ? 1 : 0.2; // Stroke widths for major and minor gridlines
             ctx.font = "18px serif"; // Font size
 

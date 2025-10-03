@@ -115,7 +115,7 @@ function getGrid(arrowDensity) {
  */
 function addPath(e) {
     const rect = canvas.getBoundingClientRect();
-    const coords = pixelsTowCoords(e.clientX - rect.left, e.clientY - rect.top);
+    const coords = pixelsToCoords(e.clientX - rect.left, e.clientY - rect.top);
 
     fieldContainer.initialLocations.push(coords);
 }
