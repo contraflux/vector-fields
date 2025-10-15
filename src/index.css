@@ -130,7 +130,7 @@ body {
     border-bottom: 2px solid var(--light);
     border-radius: 5px;
     border-color: var(--light);
-    margin-top: 5px;
+    margin-top: 10px;
     height: 25px;
     transition: all 0.4s ease;
 }
