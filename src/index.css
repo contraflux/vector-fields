@@ -108,24 +108,36 @@ body {
     height: 30px;
     color-scheme: dark ;
     color: var(--light);
-    background-color: var(--shadow);
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 10px;
+    background-color: var(--panel);
+    border-width: 0px;
+    border-bottom: 2px solid var(--light);
+    border-radius: 5px;
     box-sizing: border-box;
     border-color: var(--light);
+    transition: all 0.4s ease;
+}
+
+.container-row>input:hover {
+    background-color: var(--shadow);
+    box-shadow: 0 5px 10px black;
 }
 
 .container-row>select {
     color-scheme: dark ;
     color: var(--light);
-    background-color: var(--shadow);
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 10px;
+    background-color: var(--panel);
+    border-width: 0px;
+    border-bottom: 2px solid var(--light);
+    border-radius: 5px;
     border-color: var(--light);
     margin-top: 5px;
     height: 25px;
+    transition: all 0.4s ease;
+}
+
+.container-row>select:hover {
+    background-color: var(--shadow);
+    box-shadow: 0 5px 10px black;
 }
 
 .canvas {
