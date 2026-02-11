@@ -35,6 +35,7 @@ function appPeriodic() {
         function pow(x, y) { return Math.pow(x, y); }
         function sqrt(x) { return Math.sqrt(x); }
         function log(x) { return Math.log(x); }
+        function abs(x) { return Math.abs(x); }
         function ceil(x) { return Math.ceil(x); }
         function floor(x) { return Math.floor(x); }
 
@@ -102,8 +103,8 @@ function getGrid(arrowDensity) {
     const step = gridSpacing / arrowDensity;
     const xs = range(min_x - step, max_x + step, step);
     const ys = range(min_y - step, max_y + step, step);
-    const scalar_xs = range(min_x - step, max_x + step, step/2);
-    const scalar_ys = range(min_y - step, max_y + step, step/2);
+    const scalar_xs = range(min_x - step, max_x + step, (max_x - min_x)/25);
+    const scalar_ys = range(min_y - step, max_y + step, (max_y - min_y)/25);
 
     return [step, xs, ys, scalar_xs, scalar_ys];
 }

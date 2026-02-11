@@ -105,20 +105,14 @@ export function drawScalarField(fieldContainer, xs, ys, func, operator, start_co
         ys.forEach((y, y_index) => {
             const index = (x_index * ys.length) + y_index;
 
-            // Rectangle grid positions
             const [width_start, height_start] = coordsToPixels(x, y);
             const [width_end, height_end] = coordsToPixels(x + dx, y + dy);
-
-            // Rectange dimensions (expand slightly to fix boundary fighting)
-            const rect_width = (width_end - width_start) * 1.1;
-            const rect_height = (height_end - height_start) * 1.1;
-
             ctx.fillStyle = colors[index];
             ctx.lineWidth = 0;
             ctx.save();
             ctx.translate(width_start, height_start);
             ctx.beginPath();
-            ctx.rect(0, 0, rect_width, rect_height);
+            ctx.rect(0, 0, (width_end - width_start) * 1.1, (height_end - height_start) * 1.1);
             ctx.fill();
             ctx.restore();
         });
