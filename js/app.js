@@ -178,4 +178,93 @@ document.addEventListener('keypress', (e) => {
     if (e.key == 'r') fieldContainer.resetFields();
 });
 
+/**
+ * Steps shown by the walkthrough, in order
+ *
+ * @type {array}
+ */
+const walkthroughSteps = [
+    {
+        title: "Equations",
+        text: "Enter expressions for dx/dt and dy/dt in terms of x and y to define the vector field. Supports +, -, *, /, ^ or ** for exponents, parentheses, the functions sin, cos, tan, sqrt, log, abs, ceil, and floor, and the constants pi and e."
+    },
+    {
+        title: "Navigating the Canvas",
+        text: "Drag empty space to pan the view, and scroll to zoom in or out. Double-click anywhere to trace a path through the field starting at that point. Press 'r' to reset the view and clear any paths."
+    },
+    {
+        title: "Visualizing the Field",
+        text: "Arrows are colored by magnitude between Start Color and End Color. Check Normalize to make every arrow the same length, and use Arrow Scale and Arrow Density to adjust their size and spacing."
+    },
+    {
+        title: "Divergence & Curl",
+        text: "Choose Divergence or Curl from Overlay to see a smooth heatmap of that scalar quantity — blue for negative, red for positive — with a colorbar on the left showing the scale."
+    }
+];
+
+let walkthroughStep = 0;
+
+/**
+ * Renders the current walkthrough step's content and nav state
+ */
+function showWalkthroughStep() {
+    const step = walkthroughSteps[walkthroughStep];
+
+    document.getElementById('walkthrough-title').textContent = step.title;
+    document.getElementById('walkthrough-text').textContent = step.text;
+    document.getElementById('walkthrough-progress').textContent = `${walkthroughStep + 1} / ${walkthroughSteps.length}`;
+    document.getElementById('walkthrough-back').style.display = walkthroughStep === 0 ? "none" : "flex";
+    document.querySelector('#walkthrough-next p').textContent = walkthroughStep === walkthroughSteps.length - 1 ? "Done" : "Next";
+}
+
+document.getElementById('walkthrough-button').addEventListener('click', () => {
+    walkthroughStep = 0;
+    showWalkthroughStep();
+    document.getElementById('walkthrough-box').style.visibility = "visible";
+});
+
+document.getElementById('walkthrough-close').addEventListener('click', () => {
+    document.getElementById('walkthrough-box').style.visibility = "hidden";
+});
+
+document.getElementById('walkthrough-back').addEventListener('click', () => {
+    if (walkthroughStep === 0) {
+        return;
+    }
+    walkthroughStep--;
+    showWalkthroughStep();
+});
+
+document.getElementById('walkthrough-next').addEventListener('click', () => {
+    if (walkthroughStep === walkthroughSteps.length - 1) {
+        document.getElementById('walkthrough-box').style.visibility = "hidden";
+        return;
+    }
+    walkthroughStep++;
+    showWalkthroughStep();
+});
+
+// Hint that the options panel scrolls: shown near the top, faded out once
+// scrolled, and shown again if scrolled back up. Removed entirely if the
+// panel doesn't actually overflow
+document.querySelectorAll('.input-container').forEach((container) => {
+    const hint = container.querySelector('.scroll-hint');
+    if (!hint) {
+        return;
+    }
+
+    if (container.scrollHeight <= container.clientHeight) {
+        hint.remove();
+        return;
+    }
+
+    container.addEventListener('scroll', () => {
+        hint.classList.toggle('hidden', container.scrollTop > 4);
+    });
+
+    hint.addEventListener('click', () => {
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    });
+});
+
 setInterval(appPeriodic, 10);
