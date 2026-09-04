@@ -1,87 +1,67 @@
 :root {
-  --highlight: rgb(26, 27, 36);
-  --shadow: rgb(22, 22, 28);
-  --panel: rgb(31, 33, 40);
-  --light: rgb(190, 200, 220);
+  --background: #0e0f13;
+  --surface: #17181e;
+  --primary: #e6e7ec;
+  --secondary: #989aa5;
+  --accent: #7c98ff;
+  --accent-dim: #5b6fcc;
+  --border: #34363f;
 }
 
 body {
     position: relative;
-    width: 900px;
-    background-color: var(--highlight);
-    font-family: Arial, Helvetica, sans-serif;
+    width: 90%;
+    min-width: 700px;
+    background-color: var(--background);
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+            "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: auto;
 }
 
-.equation-container {
+.header {
+    height: 20px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.header>a {
+    color: var(--secondary);
+    text-decoration: none;
+    transition: color 0.4s ease;
+}
+
+.header>a:hover {
+    color: var(--accent);
+}
+
+.equation-container,
+.input-container {
     z-index: 100;
     position: relative;
     float: left;
-    background-color: var(--panel);
-    color: var(--light);
+    background-color: var(--surface);
+    color: var(--primary);
     box-sizing: border-box;
-    width: 300px;
-    margin: 0;
+    width: calc(100%/2 - 110px);
     height: 100px;
-    margin-bottom: 10px;
+    margin: 0;
     margin-top: 10px;
     border-radius: 25px;
-    box-shadow: 0 0 5px 5px var(--shadow);
+    overflow: scroll;
 }
 
 .color-container {
     z-index: 100;
     position: relative;
     float: left;
-    background-color: var(--panel);
-    color: var(--light);
+    background-color: var(--surface);
+    color: var(--primary);
     box-sizing: border-box;
     width: 200px;
     height: 100px;
-    margin: 0;
-    margin-top: 10px; margin-left: 10px;
+    margin: 10px;
     border-radius: 25px;
-    box-shadow: 0 0 5px 5px var(--shadow);
-}
-
-.input-container {
-    z-index: 100;
-    position: relative;
-    float: left;
-    background-color: var(--panel);
-    color: var(--light);
-    box-sizing: border-box;
-    width: 380px;
-    height: 100px;
-    margin: 0;
-    margin-top: 10px; margin-left: 10px;
-    border-radius: 25px;
-    display: dark;
-    overflow: hidden;
-    box-shadow: 0 0 5px 5px var(--shadow);
-}
-
-.scroll {
-    position: absolute;
-    top: 0;
-    height: 100px;
-    width: 370px;
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 10%, rgba(0,0,0,1) 90%, rgba(0,0,0,0) 100%);
-}
-
-.scroll-bar {
-    position: absolute;
-    top: 0; right: 0;
-    width: 10px;
-    height: 50px;
-    background-color: var(--light);
-}
-
-.scroll-bar-track {
-    position: absolute;
-    top: 0; right: 0;
-    width: 10px;
-    height: 100px;
 }
 
 .container-row {
@@ -106,46 +86,71 @@ body {
     position: relative;
     margin-top: 10px; margin-bottom: 10px;
     height: 30px;
-    color-scheme: dark ;
-    color: var(--light);
-    background-color: var(--panel);
-    border-width: 0px;
-    border-bottom: 2px solid var(--light);
-    border-radius: 5px;
+    color-scheme: dark;
+    color: var(--secondary);
+    background-color: var(--surface);
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 10px;
     box-sizing: border-box;
-    border-color: var(--light);
-    transition: all 0.4s ease;
+    border-color: var(--border);
+    transition: background-color 0.4s ease;
 }
 
 .container-row>input:hover {
-    background-color: var(--shadow);
-    box-shadow: 0 5px 10px black;
+    background-color: var(--accent-dim);
+}
+
+.container-row>input.input-error {
+    border-color: #e05252;
+}
+
+.equation-container input[type="text"] {
+    color: var(--primary);
+}
+
+.equation-container input[type="text"]:hover {
+    background-color: var(--accent);
+}
+
+.equation-container input[type="text"]:focus {
+    background-color: var(--surface);
 }
 
 .container-row>select {
-    color-scheme: dark ;
-    color: var(--light);
-    background-color: var(--panel);
-    border-width: 0px;
-    border-bottom: 2px solid var(--light);
-    border-radius: 5px;
-    border-color: var(--light);
-    margin-top: 10px;
+    color-scheme: dark;
+    color: var(--primary);
+    background-color: var(--surface);
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 10px;
+    border-color: var(--border);
+    margin-top: 5px;
     height: 25px;
     transition: all 0.4s ease;
 }
 
 .container-row>select:hover {
-    background-color: var(--shadow);
-    box-shadow: 0 5px 10px black;
+    background-color: var(--accent-dim);
 }
 
-.canvas {
+.canvas-container {
     position: relative;
     box-sizing: border-box;
     border-radius: 25px;
-    background-color: var(--panel);
-    width: 900px;
+    overflow: hidden;
+    width: 100%;
     height: 500px;
-    box-shadow: 0 0 10px 10px var(--shadow);
+    margin-top: 10px;
+}
+
+.canvas {
+    background-color: var(--surface);
+    width: 100%;
+    height: 100%;
+}
+
+input[type="checkbox"],
+input[type="range"] {
+    accent-color: var(--accent);
 }

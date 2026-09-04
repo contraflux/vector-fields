@@ -8,7 +8,7 @@
  * @date 10/2/2025
  */
 
-import { pixelsToCoords, log, coordsToPixels, light, colorLerp } from './utilities.js';
+import { pixelsToCoords, log, coordsToPixels, light, hexToRGB, lerpRGB } from './utilities.js';
 import { rk4Path, map } from "./math.js"
 
 /**
@@ -76,14 +76,21 @@ export function drawGrid(fieldContainer) {
  * @param {function} operator - The operator to evaluate on the function
  * @param {stirng} start_color - Color of the minimum value in hex
  * @param {string} end_color - Color of the maximum value in hex
+ * @returns {float} The symmetric bound of the field, i.e. the value mapped to
+ *                  the start/end colors (see map() in math.js)
  */
 export function drawScalarField(fieldContainer, xs, ys, func, operator, start_color, end_color) {
     const ctx = fieldContainer.ctx;
 
     const dx = xs[1] - xs[0];
     const dy = ys[1] - ys[0];
+    const width = xs.length;
+    const height = ys.length;
     let scalarField = [];
-    let colors = []
+
+    // Precompute the color range endpoints once instead of per grid point
+    const start_rgb = hexToRGB(start_color);
+    const end_rgb = hexToRGB(end_color);
 
     // Collect the values of the field at the grid points
     for (const x of xs) {
@@ -91,32 +98,122 @@ export function drawScalarField(fieldContainer, xs, ys, func, operator, start_co
             scalarField.push(operator(func, x + dx/2, y + dy/2)); // Evaluate at the midpoint of two grid points
         }
     }
-
-    // Assign each value to a color in the color range
     const max = Math.max(...scalarField);
     const min = Math.min(...scalarField);
-    for (const value of scalarField) {
-        const rgb = colorLerp(start_color, end_color, map(min, max, value));
-        colors.push(`rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 1)`)
-    }
 
-    // Loop through the grid points a draw the heatmap
+    // Rasterize one pixel per grid cell onto a small offscreen canvas, then
+    // scale it up with smoothing enabled so the field reads as a continuous
+    // gradient rather than hard-edged blocks
+    const scalarCanvas = fieldContainer.scalarCanvas;
+    scalarCanvas.width = width;
+    scalarCanvas.height = height;
+
+    const scalarCtx = scalarCanvas.getContext('2d');
+    const imageData = scalarCtx.createImageData(width, height);
+
     xs.forEach((x, x_index) => {
         ys.forEach((y, y_index) => {
-            const index = (x_index * ys.length) + y_index;
+            const value = scalarField[(x_index * height) + y_index];
+            const [r, g, b] = lerpRGB(start_rgb, end_rgb, map(min, max, value));
 
-            const [width_start, height_start] = coordsToPixels(x, y);
-            const [width_end, height_end] = coordsToPixels(x + dx, y + dy);
-            ctx.fillStyle = colors[index];
-            ctx.lineWidth = 0;
-            ctx.save();
-            ctx.translate(width_start, height_start);
-            ctx.beginPath();
-            ctx.rect(0, 0, (width_end - width_start) * 1.1, (height_end - height_start) * 1.1);
-            ctx.fill();
-            ctx.restore();
+            const row = height - 1 - y_index; // Flip so larger y ends up nearer the top
+            const pixelIndex = ((row * width) + x_index) * 4;
+            imageData.data[pixelIndex] = r;
+            imageData.data[pixelIndex + 1] = g;
+            imageData.data[pixelIndex + 2] = b;
+            imageData.data[pixelIndex + 3] = 255;
         });
     });
+
+    scalarCtx.putImageData(imageData, 0, 0);
+
+    // The grid cell values were evaluated at cell midpoints, so the drawn
+    // region spans from the first grid point to one cell past the last
+    const [destX, destY] = coordsToPixels(xs[0], ys[height - 1] + dy);
+    const [destX2, destY2] = coordsToPixels(xs[width - 1] + dx, ys[0]);
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(scalarCanvas, destX, destY, destX2 - destX, destY2 - destY);
+
+    // map() scales symmetrically about 0, saturating fully at
+    // +-max(|min|, |max|) rather than at the raw min/max
+    return Math.max(Math.abs(min), Math.abs(max));
+}
+
+/**
+ * Draws a vertical colorbar showing the color scale used by drawScalarField
+ *
+ * @param {FieldContainer} fieldContainer - The app container
+ * @param {string} start_color - Color of the minimum value in hex
+ * @param {string} end_color - Color of the maximum value in hex
+ * @param {float} bound - The symmetric bound returned by drawScalarField
+ */
+export function drawColorbar(fieldContainer, start_color, end_color, bound) {
+    const ctx = fieldContainer.ctx;
+    const canvas = fieldContainer.canvas;
+
+    const barWidth = 16;
+    const margin = 10; // Gap between the panel and the canvas edge
+    const radius = 15; // Panel corner radius
+    const pad = 15; // Inner padding around the bar and labels
+
+    const format = (value) => value === 0 ? "0" : value.toPrecision(3);
+    const topLabel = format(bound);
+    const midLabel = "0";
+    const bottomLabel = format(-bound);
+
+    ctx.save();
+
+    // Size the panel to fit the (already-rounded) labels, rather than a
+    // fixed width, since the y-axis labels already occupy the right side
+    ctx.font = "12px serif";
+    const labelWidth = Math.max(
+        ctx.measureText(topLabel).width,
+        ctx.measureText(midLabel).width,
+        ctx.measureText(bottomLabel).width
+    );
+
+    const panelX = margin;
+    const panelY = margin;
+    const panelWidth = pad + barWidth + pad/2 + labelWidth + pad;
+    const panelHeight = canvas.height - (2 * margin);
+
+    const barX = panelX + pad;
+    const barY = panelY + pad;
+    const barHeight = panelHeight - (2 * pad);
+
+    // Backing panel so the colorbar stays legible over the field/grid
+    ctx.fillStyle = "rgba(23, 24, 30, 0.85)";
+    ctx.beginPath();
+    ctx.roundRect(panelX, panelY, panelWidth, panelHeight, radius);
+    ctx.fill();
+
+    if (bound === 0) {
+        // The field is uniformly 0: show a solid swatch of the halfway
+        // color instead of a gradient that implies variation that isn't there
+        const [r, g, b] = lerpRGB(hexToRGB(start_color), hexToRGB(end_color), 0.5);
+        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+    } else {
+        const gradient = ctx.createLinearGradient(0, barY, 0, barY + barHeight);
+        gradient.addColorStop(0, end_color);
+        gradient.addColorStop(1, start_color);
+        ctx.fillStyle = gradient;
+    }
+    ctx.fillRect(barX, barY, barWidth, barHeight);
+
+    ctx.strokeStyle = light;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(barX, barY, barWidth, barHeight);
+
+    ctx.fillStyle = light;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    const labelX = barX + barWidth + pad/2;
+    ctx.fillText(topLabel, labelX, barY);
+    ctx.fillText(midLabel, labelX, barY + (barHeight / 2));
+    ctx.fillText(bottomLabel, labelX, barY + barHeight);
+
+    ctx.restore();
 }
 
 /**
@@ -137,7 +234,11 @@ export function drawVectorField(fieldContainer, xs, ys, func, start_color, end_c
     const ctx = fieldContainer.ctx;
 
     let vectorField = [];
-    let colors = []; 
+    let colors = [];
+
+    // Precompute the color range endpoints once instead of per grid point
+    const start_rgb = hexToRGB(start_color);
+    const end_rgb = hexToRGB(end_color);
 
     // Find the values of the vector field at every grid point
     for (const x of xs) {
@@ -155,7 +256,7 @@ export function drawVectorField(fieldContainer, xs, ys, func, start_color, end_c
     const lengths = vectorField.map((v) => Math.hypot(...v));
     const max_length = Math.max(...lengths);
     for (const l of lengths) {
-        const rgb = colorLerp(start_color, end_color, l/max_length);
+        const rgb = lerpRGB(start_rgb, end_rgb, l/max_length);
         colors.push(`rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 1)`);
     }
 

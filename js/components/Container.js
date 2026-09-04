@@ -26,6 +26,7 @@ class FieldContainer extends Container {
         this.initialLocations = [];
         this.zoomSpeed = 2e-3;
         this.overlay = "none";
+        this.scalarCanvas = document.createElement('canvas');
     }
 
     resetFields() {

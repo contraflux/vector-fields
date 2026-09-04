@@ -17,10 +17,11 @@ const dt = 1e-5
  * @param {function} F - The function to be operated on
  * @param {float} x - The first coordinate
  * @param {float} y - The second coordinate
+ * @param {array} F_xy - The value of F(x, y), if already known
  * @returns {float} The partial derative of F with respect to x evaluated at (x, y)
  */
-export function partial_x(F, x, y) {
-    return ( F(x + dt, y)[0] - F(x, y)[0] ) / dt;
+export function partial_x(F, x, y, F_xy = F(x, y)) {
+    return ( F(x + dt, y)[0] - F_xy[0] ) / dt;
 }
 
 /**
@@ -29,10 +30,11 @@ export function partial_x(F, x, y) {
  * @param {function} F - The function to be operated on
  * @param {float} x - The first coordinate
  * @param {float} y - The second coordinate
+ * @param {array} F_xy - The value of F(x, y), if already known
  * @returns {float} The partial derative of F with respect to y evaluated at (x, y)
  */
-export function partial_y(F, x, y) {
-    return ( F(x, y + dt)[1] - F(x, y)[1] ) / dt;
+export function partial_y(F, x, y, F_xy = F(x, y)) {
+    return ( F(x, y + dt)[1] - F_xy[1] ) / dt;
 }
 
 /**
@@ -44,7 +46,8 @@ export function partial_y(F, x, y) {
  * @returns {float} The divergence of F evaluated at (x, y)
  */
 export function divergence(F, x, y) {
-    return partial_x(F, x, y) + partial_y(F, x, y);
+    const F_xy = F(x, y);
+    return partial_x(F, x, y, F_xy) + partial_y(F, x, y, F_xy);
 }
 
 /**
@@ -56,8 +59,9 @@ export function divergence(F, x, y) {
  * @returns {float} The 2-dimensional curl of F evaluated at (x, y)
  */
 export function curl(F, x, y) {
-    const Fy_dx = ( F(x + dt, y)[1] - F(x, y)[1] ) / dt
-    const Fx_dy = ( F(x, y + dt)[0] - F(x, y)[0] ) / dt
+    const F_xy = F(x, y);
+    const Fy_dx = ( F(x + dt, y)[1] - F_xy[1] ) / dt
+    const Fx_dy = ( F(x, y + dt)[0] - F_xy[0] ) / dt
     return Fy_dx - Fx_dy;
 }
 
@@ -123,6 +127,8 @@ export function map(min, max, value) {
     const min_abs = Math.abs(min);
 
     const range = max_abs > min_abs ? max_abs * 2 : min_abs * 2;
+
+    if (range === 0) return 0.5; // min and max are both 0: avoid a 0/0 divide
 
     return (value / range ) + 0.5;
 }

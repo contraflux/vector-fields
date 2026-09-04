@@ -12,12 +12,56 @@
 import { FieldContainer} from "./components/Container.js"
 import { divergence, curl } from "./util/math.js"
 import { range } from "./util/arrays.js";
-import { drawGrid, drawScalarField, drawVectorField, drawPaths } from "./util/plotting.js";
+import { drawGrid, drawScalarField, drawColorbar, drawVectorField, drawPaths } from "./util/plotting.js";
 import { log, pixelsToCoords, light } from "./util/utilities.js";
+import { compileExpression } from "./util/expression.js";
 
 export const fieldContainer = new FieldContainer('canvas');
 const canvas = fieldContainer.canvas;
 const ctx = fieldContainer.ctx;
+
+// Diverging color scale for the divergence/curl overlays: blue for negative
+// values, red for positive, so it reads distinctly from the default
+// black/white vector field colors
+const OVERLAY_START_COLOR = "#3b82f6";
+const OVERLAY_END_COLOR = "#ef4444";
+
+let cachedXDot = null;
+let cachedYDot = null;
+let compiledXDot = () => 0;
+let compiledYDot = () => 0;
+
+/**
+ * Recompile the dx/dt and dy/dt expressions when their text changes, marking
+ * whichever input is invalid rather than throwing
+ *
+ * @param {string} xDot - The dx/dt expression text
+ * @param {string} yDot - The dy/dt expression text
+ */
+function updateCompiledFields(xDot, yDot) {
+    const xDotInput = document.getElementById('x-dot');
+    const yDotInput = document.getElementById('y-dot');
+
+    if (xDot !== cachedXDot) {
+        cachedXDot = xDot;
+        try {
+            compiledXDot = compileExpression(xDot);
+            xDotInput.classList.remove('input-error');
+        } catch (err) {
+            xDotInput.classList.add('input-error');
+        }
+    }
+
+    if (yDot !== cachedYDot) {
+        cachedYDot = yDot;
+        try {
+            compiledYDot = compileExpression(yDot);
+            yDotInput.classList.remove('input-error');
+        } catch (err) {
+            yDotInput.classList.add('input-error');
+        }
+    }
+}
 
 /**
  * Periodic function that runs every tick and contains most drawing and calculation
@@ -26,40 +70,37 @@ function appPeriodic() {
     const [xDot, yDot, isNormalized, arrowScale, startColor, endColor, arrowDensity] = getInputs();
     const [step, xs, ys, scalar_xs, scalar_ys] = getGrid(arrowDensity);
 
-    function F(x, y) {
-        const pi = Math.PI;
-        const e = Math.E;
-        function sin(x) { return Math.sin(x); }
-        function cos(x) { return Math.cos(x); }
-        function tan(x) { return Math.tan(x); }
-        function pow(x, y) { return Math.pow(x, y); }
-        function sqrt(x) { return Math.sqrt(x); }
-        function log(x) { return Math.log(x); }
-        function abs(x) { return Math.abs(x); }
-        function ceil(x) { return Math.ceil(x); }
-        function floor(x) { return Math.floor(x); }
+    updateCompiledFields(xDot, yDot);
 
-        return [eval(xDot), eval(yDot)];
+    function F(x, y) {
+        return [compiledXDot(x, y), compiledYDot(x, y)];
     }
 
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = light;
     ctx.strokeStyle = light;
     ctx.font = "12px serif";
 
     // Draw the scalar field if it is selected
+    let overlayBound = null;
     if (fieldContainer.overlay == "div") {
-        drawScalarField(fieldContainer, scalar_xs, scalar_ys, F, divergence,
-                        "#000000", "#ffffff"); // Draw divergence
+        overlayBound = drawScalarField(fieldContainer, scalar_xs, scalar_ys, F, divergence,
+                        OVERLAY_START_COLOR, OVERLAY_END_COLOR); // Draw divergence
     } else if (fieldContainer.overlay == "curl") {
-        drawScalarField(fieldContainer, scalar_xs, scalar_ys, F, curl,
-                        "#000000", "#ffffff"); // Draw curl
+        overlayBound = drawScalarField(fieldContainer, scalar_xs, scalar_ys, F, curl,
+                        OVERLAY_START_COLOR, OVERLAY_END_COLOR); // Draw curl
     }
     drawGrid(fieldContainer); // Draw the coordinate grid
     drawVectorField(fieldContainer, xs, ys, F, startColor,
                     endColor, arrowScale * step,
                     0.15 * step, isNormalized, true); // Draw the vector field
     drawPaths(fieldContainer, F, 1e3, 1e-2); // Draw the paths
+
+    if (overlayBound !== null) {
+        drawColorbar(fieldContainer, OVERLAY_START_COLOR, OVERLAY_END_COLOR, overlayBound); // Draw the colorbar
+    }
 }
 
 /**
@@ -103,8 +144,14 @@ function getGrid(arrowDensity) {
     const step = gridSpacing / arrowDensity;
     const xs = range(min_x - step, max_x + step, step);
     const ys = range(min_y - step, max_y + step, step);
-    const scalar_xs = range(min_x - step, max_x + step, (max_x - min_x)/25);
-    const scalar_ys = range(min_y - step, max_y + step, (max_y - min_y)/25);
+
+    // Scalar field boxes are sized as a fraction of gridSpacing (rather than
+    // of the visible range) and anchored to min_x/min_y, which are already
+    // snapped to a multiple of gridSpacing. This keeps the box lattice fixed
+    // in world space while panning, only rescaling when gridSpacing changes.
+    const scalarStep = gridSpacing / 5;
+    const scalar_xs = range(min_x - scalarStep, max_x + scalarStep, scalarStep);
+    const scalar_ys = range(min_y - scalarStep, max_y + scalarStep, scalarStep);
 
     return [step, xs, ys, scalar_xs, scalar_ys];
 }

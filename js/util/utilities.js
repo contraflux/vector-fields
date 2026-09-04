@@ -27,27 +27,31 @@ export function log(a, b) {
 }
 
 /**
- * Linearly interpolate between two colors given as hex codes
+ * Linearly interpolate between two colors given as RGB arrays
  *
- * @param {string} a - The starting color as a hex code
- * @param {string} b - The ending color as a hex code
+ * @param {array} start_rgb - The starting color as [r, g, b]
+ * @param {array} end_rgb - The ending color as [r, g, b]
  * @param {float} s - The interpolation parameter
- * @returns {string} The color as a hex code
+ * @returns {array} The interpolated color as [r, g, b]
  */
-export function colorLerp(start_color, end_color, s) {
-    const start_color_rgb = hexToRGB(start_color);
-    const end_color_rgb = hexToRGB(end_color);
-
-    const delta_red = end_color_rgb[0] - start_color_rgb[0];
-    const red = (delta_red * s) + start_color_rgb[0];
-
-    const delta_green = end_color_rgb[1] - start_color_rgb[1];
-    const green = (delta_green * s) + start_color_rgb[1];
-
-    const delta_blue = end_color_rgb[2] - start_color_rgb[2];
-    const blue = (delta_blue * s) + start_color_rgb[2];
+export function lerpRGB(start_rgb, end_rgb, s) {
+    const red = ((end_rgb[0] - start_rgb[0]) * s) + start_rgb[0];
+    const green = ((end_rgb[1] - start_rgb[1]) * s) + start_rgb[1];
+    const blue = ((end_rgb[2] - start_rgb[2]) * s) + start_rgb[2];
 
     return [red, green, blue];
+}
+
+/**
+ * Linearly interpolate between two colors given as hex codes
+ *
+ * @param {string} start_color - The starting color as a hex code
+ * @param {string} end_color - The ending color as a hex code
+ * @param {float} s - The interpolation parameter
+ * @returns {array} The interpolated color as [r, g, b]
+ */
+export function colorLerp(start_color, end_color, s) {
+    return lerpRGB(hexToRGB(start_color), hexToRGB(end_color), s);
 }
 
 /**
